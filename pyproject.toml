@@ -18,4 +18,5 @@ dependencies = [
 sec-scraper = "sec_revenue_scraper:main"
 
 [tool.setuptools]
+packages = ["sec_scraper"]
 py-modules = ["sec_revenue_scraper"]
