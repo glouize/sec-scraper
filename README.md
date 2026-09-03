@@ -41,6 +41,8 @@ sec-scraper/
 Clone or download this repository, and install the required dependencies:
 
 ```bash
+git clone https://github.com/glouize/sec-scraper.git
+cd sec-scraper
 pip install -r requirements.txt
 ```
 
