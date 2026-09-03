@@ -23,10 +23,26 @@ class RevenueChart:
         "All values programmatically retrieved from SEC EDGAR API."
     )
 
+    DEFAULT_BRAND_COLORS: dict[str, str] = {
+        "TSLA": "#E82127",
+        "AAPL": "#0071E3",
+        "MSFT": "#00A4EF",
+        "NVDA": "#76B900",
+        "GOOGL": "#4285F4",
+        "AMZN": "#FF9900",
+        "META": "#0668E1",
+    }
+
     def __init__(self, style_name: str = "seaborn-v0_8-whitegrid"):
         self.style_name = style_name if style_name in plt.style.available else "default"
 
-    def create_figure(self, df: pd.DataFrame, company_name: str, ticker_symbol: str) -> plt.Figure:
+    def create_figure(
+        self,
+        df: pd.DataFrame,
+        company_name: str,
+        ticker_symbol: str,
+        bar_color: str | None = None,
+    ) -> plt.Figure:
         """Render a styled revenue bar and trajectory figure in memory."""
         plt.style.use(self.style_name)
 
@@ -38,14 +54,17 @@ class RevenueChart:
         revenues = df["revenue_billions"].tolist()
         x = range(len(quarters))
 
-        bar_color = "#E82127" if ticker_symbol.upper() == "TSLA" else "#1F77B4"
+        effective_bar_color = (
+            bar_color
+            or self.DEFAULT_BRAND_COLORS.get(ticker_symbol.upper(), "#1F77B4")
+        )
         accent_color = "#111111"
 
         bars = ax.bar(
             x,
             revenues,
             width=0.55,
-            color=bar_color,
+            color=effective_bar_color,
             edgecolor=accent_color,
             linewidth=0.8,
             zorder=3,
@@ -104,7 +123,7 @@ class RevenueChart:
             ax.spines[spine].set_linewidth(1.0)
 
         fig.suptitle(
-            f"{company_name} ({ticker_symbol.upper()}) \u2014 Last 8 Quarters Revenue",
+            f"{company_name} ({ticker_symbol.upper()}) \u2014 Last {len(quarters)} Quarters Revenue",
             fontsize=16,
             fontweight="bold",
             x=0.08,
@@ -133,12 +152,20 @@ class RevenueChart:
 
         return fig
 
-    def save(self, df: pd.DataFrame, company_name: str, ticker_symbol: str, output_path: str) -> str:
+    def save(
+        self,
+        df: pd.DataFrame,
+        company_name: str,
+        ticker_symbol: str,
+        output_path: str,
+        bar_color: str | None = None,
+        dpi: int = 300,
+    ) -> str:
         """Render figure and persist to disk via filesystem seam."""
-        fig = self.create_figure(df, company_name, ticker_symbol)
+        fig = self.create_figure(df, company_name, ticker_symbol, bar_color=bar_color)
         try:
             os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-            fig.savefig(output_path, dpi=300)
+            fig.savefig(output_path, dpi=dpi)
             return output_path
         finally:
             plt.close(fig)

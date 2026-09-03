@@ -114,3 +114,55 @@ def test_normalizer_raises_error_if_insufficient_quarters():
     normalizer = RevenueNormalizer()
     with pytest.raises(RuntimeError, match="Found only"):
         normalizer.normalize(facts, count=8)
+
+
+def test_concept_selection_prefers_latest_period():
+    """Verify that when multiple concepts are present, the concept with the latest end date is selected (e.g. AAPL post-2018)."""
+    facts = {
+        "entityName": "MultiConcept Corp",
+        "facts": {
+            "us-gaap": {
+                "Revenues": {
+                    "units": {
+                        "USD": [
+                            {"end": "2018-09-30", "val": 100_000_000, "form": "10-Q"}
+                        ]
+                    }
+                },
+                "RevenueFromContractWithCustomerExcludingAssessedTax": {
+                    "units": {
+                        "USD": [
+                            {"end": "2026-06-30", "val": 200_000_000, "form": "10-Q"}
+                        ]
+                    }
+                }
+            }
+        }
+    }
+    normalizer = RevenueNormalizer()
+    concept = normalizer.identify_revenue_concept(facts["facts"]["us-gaap"])
+    assert concept == "RevenueFromContractWithCustomerExcludingAssessedTax"
+
+
+def test_concept_explicit_override():
+    facts = {
+        "entityName": "Override Corp",
+        "facts": {
+            "us-gaap": {
+                "Revenues": {
+                    "units": {
+                        "USD": [{"end": "2026-06-30", "val": 100_000_000, "form": "10-Q"}]
+                    }
+                },
+                "SalesRevenueNet": {
+                    "units": {
+                        "USD": [{"end": "2026-06-30", "val": 90_000_000, "form": "10-Q"}]
+                    }
+                }
+            }
+        }
+    }
+    normalizer = RevenueNormalizer(concept="SalesRevenueNet")
+    concept = normalizer.identify_revenue_concept(facts["facts"]["us-gaap"])
+    assert concept == "SalesRevenueNet"
+

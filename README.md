@@ -67,14 +67,46 @@ python sec_revenue_scraper.py --ticker MSFT
 python sec_revenue_scraper.py --ticker NVDA
 ```
 
-### 3. Command-Line Options
+### 3. Command-Line Options & Configuration
 
-| Flag | Default | Description |
-| :--- | :--- | :--- |
-| `--ticker` | `TSLA` | US ticker symbol or 10-digit SEC CIK |
-| `--output-csv` | `data/<ticker>_revenue_last_8_quarters.csv` | Output path for CSV dataset |
-| `--output-chart` | `charts/<ticker>_revenue_last_8_quarters.png` | Output path for chart PNG |
-| `--user-agent` | `FinancialResearch/1.0 (...)` | SEC-compliant User-Agent header |
+| Flag | Short | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `--ticker` | `-t` | `TSLA` | US ticker symbol or 10-digit SEC CIK |
+| `--quarters` | `-n` | `8` | Number of quarters to extract and visualize |
+| `--output-csv` | | `data/<ticker>_revenue_last_<n>_quarters.csv` | Custom output path for CSV dataset |
+| `--output-chart` | | `charts/<ticker>_revenue_last_<n>_quarters.png` | Custom output path for chart PNG |
+| `--data-dir` | | `data` | Directory for default CSV exports |
+| `--charts-dir` | | `charts` | Directory for default chart exports |
+| `--user-agent` | | `FinancialResearch/1.0 (...)` | SEC-compliant User-Agent header |
+| `--concept` | | `Auto (latest recency)` | Explicit US-GAAP revenue concept override |
+| `--config` | `-c` | `sec_scraper_config.json` (if present) | Path to JSON configuration file |
+| `--no-chart` | | `False` | Extract CSV dataset only, skip chart rendering |
+| `--quiet` | `-q` | `False` | Suppress console summary output |
+
+#### Environment Variables
+
+You can also configure pipeline defaults via environment variables:
+- `SEC_TICKER`: Default ticker symbol (e.g. `AAPL`)
+- `SEC_QUARTERS`: Default quarter count (e.g. `8`)
+- `SEC_USER_AGENT`: SEC-compliant User-Agent header
+- `SEC_OUTPUT_CSV`: Custom CSV export destination
+- `SEC_OUTPUT_CHART`: Custom chart image export destination
+- `SEC_CONCEPT`: Target US-GAAP concept override
+- `SEC_NO_CHART`: Set to `true` to skip chart generation
+- `SEC_QUIET`: Set to `true` to suppress console output
+
+#### Configuration File
+
+Create a `sec_scraper_config.json` file in your workspace or specify one with `--config path/to/config.json`:
+
+```json
+{
+  "ticker": "AAPL",
+  "quarters": 8,
+  "data_dir": "data",
+  "charts_dir": "charts"
+}
+```
 
 ---
 

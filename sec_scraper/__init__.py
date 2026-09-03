@@ -11,6 +11,7 @@ from sec_scraper.client import (
     HttpTransportAdapter,
     TransportAdapter,
 )
+from sec_scraper.config import ScraperConfig
 from sec_scraper.normalizer import RevenueNormalizer
 from sec_scraper.cli import run_pipeline
 
@@ -23,6 +24,6 @@ __all__ = [
     "FixtureTransportAdapter",
     "DEFAULT_USER_AGENT",
     "KNOWN_TICKER_TO_CIK",
+    "ScraperConfig",
     "run_pipeline",
 ]
-

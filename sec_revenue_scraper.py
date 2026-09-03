@@ -20,6 +20,7 @@ from sec_scraper.client import (
     HttpTransportAdapter,
 )
 from sec_scraper.cli import main, run_pipeline
+from sec_scraper.config import ScraperConfig
 from sec_scraper.normalizer import RevenueNormalizer
 
 # Re-export legacy constants

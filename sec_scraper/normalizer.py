@@ -22,19 +22,54 @@ class RevenueNormalizer:
         "SalesRevenueGoodsNet",
     ]
 
-    def __init__(self, candidate_concepts: list[str] | None = None):
+    def __init__(
+        self,
+        candidate_concepts: list[str] | None = None,
+        concept: str | None = None,
+    ):
         self.candidate_concepts = candidate_concepts or list(self.DEFAULT_CANDIDATE_CONCEPTS)
+        self.concept = concept
 
-    def identify_revenue_concept(self, us_gaap_facts: dict[str, Any]) -> str | None:
-        """Find the primary US-GAAP revenue concept with USD units."""
-        for concept in self.candidate_concepts:
-            if concept in us_gaap_facts:
-                concept_data = us_gaap_facts[concept]
+    def identify_revenue_concept(
+        self,
+        us_gaap_facts: dict[str, Any],
+        concept: str | None = None,
+    ) -> str | None:
+        """
+        Find the primary US-GAAP revenue concept with USD units.
+        If an explicit concept is provided or configured, validates and returns it.
+        Otherwise, selects the candidate concept with the most recent filing period end date,
+        breaking ties by order of preference in candidate_concepts.
+        """
+        target = concept or self.concept
+        if target:
+            if target in us_gaap_facts:
+                concept_data = us_gaap_facts[target]
                 if "units" in concept_data and "USD" in concept_data["units"]:
-                    return concept
-        return None
+                    return target
+            return None
 
-    def normalize(self, facts: dict[str, Any], count: int = 8) -> pd.DataFrame:
+        best_concept = None
+        best_latest_end = ""
+
+        for c in self.candidate_concepts:
+            if c in us_gaap_facts:
+                concept_data = us_gaap_facts[c]
+                if "units" in concept_data and "USD" in concept_data["units"]:
+                    entries = concept_data["units"]["USD"]
+                    latest_end = max((e.get("end", "") for e in entries), default="")
+                    if best_concept is None or latest_end > best_latest_end:
+                        best_concept = c
+                        best_latest_end = latest_end
+
+        return best_concept
+
+    def normalize(
+        self,
+        facts: dict[str, Any],
+        count: int = 8,
+        concept: str | None = None,
+    ) -> pd.DataFrame:
         """
         Extract and normalize quarterly revenue from raw SEC XBRL facts.
 
@@ -45,9 +80,10 @@ class RevenueNormalizer:
         us_gaap = facts.get("facts", {}).get("us-gaap", {})
         entity_name = facts.get("entityName", "Company")
 
-        revenue_concept = self.identify_revenue_concept(us_gaap)
+        revenue_concept = self.identify_revenue_concept(us_gaap, concept=concept)
         if not revenue_concept:
-            raise ValueError(f"No suitable revenue concept found in US-GAAP facts for {entity_name}")
+            target_str = f"concept '{concept or self.concept}'" if (concept or self.concept) else "suitable revenue concept"
+            raise ValueError(f"No {target_str} found in US-GAAP facts for {entity_name}")
 
         usd_units = us_gaap[revenue_concept]["units"]["USD"]
 
