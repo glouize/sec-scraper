@@ -110,3 +110,4 @@ class EdgarClient:
         url = f"https://data.sec.gov/api/xbrl/companyfacts/CIK{padded_cik}.json"
         headers = {"User-Agent": self.user_agent, "Accept": "application/json"}
         return self.transport.get_json(url, headers=headers)
+

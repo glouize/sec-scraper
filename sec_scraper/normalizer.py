@@ -57,7 +57,7 @@ class RevenueNormalizer:
 
         for entry in usd_units:
             form = entry.get("form")
-            if form not in ("10-Q", "10-K"):
+            if form not in ("10-Q", "10-K", "10-Q/A", "10-K/A"):
                 continue
 
             start_str = entry.get("start")
@@ -87,12 +87,12 @@ class RevenueNormalizer:
                 })
 
             # 9-month cumulative period (~250 to 290 days) reported in Q3 10-Q
-            elif 250 <= days <= 290 and fp == "Q3":
+            elif 250 <= days <= 290 and fp in ("Q3", "Q3/A"):
                 if end not in nine_month_periods or entry.get("filed", "") > nine_month_periods[end].get("filed", ""):
                     nine_month_periods[end] = entry
 
             # Full Year period (~350 to 380 days) reported in 10-K
-            elif 350 <= days <= 380 and (fp == "FY" or form == "10-K"):
+            elif 350 <= days <= 380 and (fp in ("FY", "FY/A") or "10-K" in str(form)):
                 if end not in full_year_periods or entry.get("filed", "") > full_year_periods[end].get("filed", ""):
                     full_year_periods[end] = entry
 
@@ -119,7 +119,7 @@ class RevenueNormalizer:
                         "end": fy_end,
                         "fy": fy_entry.get("fy"),
                         "fp": "Q4",
-                        "form": "10-K",
+                        "form": fy_entry.get("form", "10-K"),
                         "val": q4_val,
                         "accn": fy_entry.get("accn", ""),
                         "filed": fy_entry.get("filed", ""),
@@ -133,10 +133,8 @@ class RevenueNormalizer:
         if len(sorted_quarters) < count:
             raise RuntimeError(f"Found only {len(sorted_quarters)} quarters, expected at least {count}.")
 
-        selected_quarters = sorted_quarters[-count:]
-
         records = []
-        for q in selected_quarters:
+        for q in sorted_quarters:
             month = q["end"].month
             year = q["end"].year
             if month in (3, 4):
@@ -162,7 +160,10 @@ class RevenueNormalizer:
             })
 
         df = pd.DataFrame(records)
+        # Calculate growth metrics across full historical series before slicing
         df["qoq_growth_pct"] = df["revenue_billions"].pct_change() * 100
         df["yoy_growth_pct"] = df["revenue_billions"].pct_change(4) * 100
 
-        return df
+        # Return the last `count` quarters
+        return df.tail(count).reset_index(drop=True)
+

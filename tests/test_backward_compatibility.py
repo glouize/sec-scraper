@@ -24,18 +24,9 @@ def test_parse_quarterly_revenue_legacy_call():
     assert df.iloc[0]["quarter"] == "Q1 2024"
 
 
-def test_generate_revenue_chart_legacy_call():
-    df = pd.DataFrame([
-        {"quarter": "Q1 2024", "revenue_billions": 10.0, "yoy_growth_pct": None, "qoq_growth_pct": None},
-        {"quarter": "Q2 2024", "revenue_billions": 12.0, "yoy_growth_pct": None, "qoq_growth_pct": 20.0},
-        {"quarter": "Q3 2024", "revenue_billions": 14.0, "yoy_growth_pct": None, "qoq_growth_pct": 16.7},
-        {"quarter": "Q4 2024", "revenue_billions": 16.0, "yoy_growth_pct": None, "qoq_growth_pct": 14.3},
-        {"quarter": "Q1 2025", "revenue_billions": 15.0, "yoy_growth_pct": 50.0, "qoq_growth_pct": -6.25},
-        {"quarter": "Q2 2025", "revenue_billions": 18.0, "yoy_growth_pct": 50.0, "qoq_growth_pct": 20.0},
-        {"quarter": "Q3 2025", "revenue_billions": 21.0, "yoy_growth_pct": 50.0, "qoq_growth_pct": 16.7},
-        {"quarter": "Q4 2025", "revenue_billions": 24.0, "yoy_growth_pct": 50.0, "qoq_growth_pct": 14.3},
-    ])
+def test_generate_revenue_chart_legacy_call(sample_revenue_df: pd.DataFrame):
     with tempfile.TemporaryDirectory() as tmpdir:
         out_path = os.path.join(tmpdir, "legacy_chart.png")
-        sec_revenue_scraper.generate_revenue_chart(df, "Tesla, Inc.", "TSLA", out_path)
+        sec_revenue_scraper.generate_revenue_chart(sample_revenue_df, "Tesla, Inc.", "TSLA", out_path)
         assert os.path.exists(out_path)
+

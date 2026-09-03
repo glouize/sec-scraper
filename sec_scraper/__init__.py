@@ -25,3 +25,4 @@ __all__ = [
     "KNOWN_TICKER_TO_CIK",
     "run_pipeline",
 ]
+

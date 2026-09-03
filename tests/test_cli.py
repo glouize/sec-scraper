@@ -56,3 +56,4 @@ def test_main_cli_returns_zero_on_success(monkeypatch):
         exit_code = main(["--ticker", "TSLA", "--output-csv", csv_path, "--output-chart", chart_path])
         assert exit_code == 0
         assert os.path.exists(csv_path)
+

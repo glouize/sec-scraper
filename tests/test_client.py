@@ -63,3 +63,4 @@ def test_get_company_facts_uses_transport_seam():
     assert len(adapter.calls) == 1
     assert "CIK0001318605.json" in adapter.calls[0]["url"]
     assert "User-Agent" in adapter.calls[0]["headers"]
+

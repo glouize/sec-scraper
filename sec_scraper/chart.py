@@ -71,7 +71,7 @@ class RevenueChart:
         max_rev = max(revenues) if revenues else 1.0
         for i, (bar, rev) in enumerate(zip(bars, revenues)):
             height = bar.get_height()
-            yoy = df.loc[i, "yoy_growth_pct"] if "yoy_growth_pct" in df.columns else None
+            yoy = df["yoy_growth_pct"].iloc[i] if "yoy_growth_pct" in df.columns else None
             yoy_str = f"({'+' if yoy > 0 else ''}{yoy:.1f}% YoY)" if pd.notnull(yoy) else ""
             label_text = f"${rev:.2f}B\n{yoy_str}".strip()
 
