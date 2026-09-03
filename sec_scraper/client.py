@@ -18,6 +18,7 @@ KNOWN_TICKER_TO_CIK: dict[str, str] = {
     "GOOGL": "0001652044",
     "AMZN": "0001018724",
     "META": "0001326801",
+    "BA": "0000012927",
 }
 
 

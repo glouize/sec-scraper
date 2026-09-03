@@ -31,6 +31,7 @@ class RevenueChart:
         "GOOGL": "#4285F4",
         "AMZN": "#FF9900",
         "META": "#0668E1",
+        "BA": "#0033A0",
     }
 
     def __init__(self, style_name: str = "seaborn-v0_8-whitegrid"):
